@@ -1,0 +1,63 @@
+version: "3.7"
+
+services:
+
+    axonserver:
+        image: axoniq/axonserver
+        hostname: axonserver
+        volumes:
+            - "D:/projects/spring-boot-microservice/online-cafe-microservice/axonserver-data:/data"
+            - "D:/projects/spring-boot-microservice/online-cafe-microservice/axonserver-events:/eventdata"
+            - "D:/projects/spring-boot-microservice/online-cafe-microservice/axonserver-config:/config"
+        ports:
+            - "8024:8024"
+            - "8124:8124"
+            - "8224:8224"
+        networks:
+            - online-cafe-network
+    
+    online-cafe-naming-server:
+        image: shubhdes/online-cafe-naming-server:1.0
+        hostname: "online-cafe-naming-server"
+        ports:
+            - "5001:8080"
+        networks:
+            - online-cafe-network
+        depends_on:
+            - axonserver
+    
+    online-cafe-api-gateway:
+        image: shubhdes/online-cafe-api-gateway:1.0
+        hostname: "online-cafe-api-gateway"
+        ports:
+            - "6001:8080"
+        networks:
+            - online-cafe-network
+        depends_on:
+            - axonserver
+            - online-cafe-naming-server  
+    
+    online-cafe-orders-service:
+        image: shubhdes/online-cafe-orders-service:1.0
+        hostname: "online-cafe-orders-service"
+        ports:
+            - "7001:8080"
+        networks:
+            - online-cafe-network
+        depends_on:
+            - axonserver
+            - online-cafe-naming-server  
+    
+    online-cafe-products-service:
+        image: shubhdes/online-cafe-products-service:1.0
+        hostname: "online-cafe-products-service"
+        ports:
+            - "8001:8080"
+        networks:
+            - online-cafe-network
+        depends_on:
+            - axonserver
+            - online-cafe-naming-server
+
+networks:
+    online-cafe-network:
